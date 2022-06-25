@@ -1,0 +1,32 @@
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  name: dc-hello
+  namespace: dc-openshift
+spec:
+  replicas: 3
+  selector:    
+    name: dc-hello
+  template:    
+    metadata:
+      labels:  
+        name: dc-hello
+    spec:
+      containers:
+      - image: openshift/hello-openshift
+        name: dc-hello
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+  triggers:
+  - type: ConfigChange 
+  - imageChangeParams:
+      automatic: true
+      containerNames:
+      - dc-hello
+      from:
+        kind: ImageStreamTag
+        name: dc-is:latest
+    type: ImageChange  
+  strategy:
+    type: Rolling
