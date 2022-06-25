@@ -1,0 +1,93 @@
+apiVersion: v1
+kind: DeploymentConfig
+metadata:
+  name: mysql-hookdc
+spec:
+  replicas: 1
+  selector:
+    tier: db
+  template:
+    metadata:
+      name: mysql-pod
+      labels:
+        tier: db
+    spec:
+      containers:
+      - image: mysql:5.6
+        name: mysql
+        env:
+        - name: MYSQL_DATABASE
+          value: mydatabase
+        - name: MYSQL_ROOT_PASSWORD
+          value: password
+        - name: MYSQL_PASSWORD
+          value: password
+        - name: MYSQL_USER
+          value: user
+        ports:
+        - containerPort: 3306
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /var/lib/mysql
+          name: mysql-hook-volume-1
+      volumes:
+      - persistantVolumeClaim:
+          claimName: db-pvc
+        name: mysql-hook-volume-1
+  strategy:
+    type: Rolling
+    rollingParams:
+      post:
+        failurePolicy: Abort
+        execNewPod:
+          command: 
+          - /bin/sh
+          - '-c'      
+          - echo "entered post hook" & sleep 500
+          
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service
+spec:
+  ports:
+  - name: 3306-tcp
+    port: 3306
+    protocol: TCP
+    targetPort: 3306
+  selector:
+    tier: db      
+
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: db-pv
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Recycle
+  storageClassName: db
+  hostPath:
+    path: /mnt/db
+    type: DirectoryOrCreate
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: db-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: db
