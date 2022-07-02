@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: scheduled-with-anti-affinity
+  name: scheduled-with-anti-affinity
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      deployment: scheduled-with-anti-affinity
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        deployment: scheduled-with-anti-affinity
+    spec:
+      containers:
+      - image: nginxinc/nginx-unprivileged
+        name: scheduled-with-anti-affinity
+      affinity:
+        nodeAffinity: 
+          requiredDuringSchedulingIgnoredDuringExecution: 
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: disktype
+                operator: NotIn
+                values:
+                - ssd
