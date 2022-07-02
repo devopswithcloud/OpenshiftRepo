@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: with-toleration-pod
+  name: with-toleration-pod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      deployment: with-toleration-pod
+  template:
+    metadata:
+      labels:
+        deployment: with-toleration-pod
+    spec:
+      containers:
+      - image: nginxinc/nginx-unprivileged
+        name: with-toleration-pod
+      nodeSelector:
+        type: taint
+      tolerations:
+      - effect: "NoSchedule"
+        operator: "Equal"
+        key: "disktype"
+        value: "magnetic
