@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: without-toleration-pod
+  name: without-toleration-pod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      deployment: without-toleration-pod
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        deployment: without-toleration-pod
+    spec:
+      containers:
+      - image: nginxinc/nginx-unprivileged
+        name: without-toleration-pod
+      nodeSelector:
+        type: taint
