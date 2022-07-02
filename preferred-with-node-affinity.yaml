@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: preferred-with-node-affinity
+  name: preferred-with-node-affinity
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      deployment: preferred-with-node-affinity
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        deployment: preferred-with-node-affinity
+    spec:
+      containers:
+      - image: nginxinc/nginx-unprivileged
+        name: preferred-with-node-affinity
+      affinity:
+        nodeAffinity: 
+          preferredDuringSchedulingIgnoredDuringExecution: 
+          - weight: 1 
+            preference:
+              matchExpressions:
+              - key: env
+                operator: In 
+                values:
+                - test
