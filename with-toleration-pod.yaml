@@ -23,4 +23,4 @@ spec:
       - effect: "NoSchedule"
         operator: "Equal"
         key: "disktype"
-        value: "magnetic
+        value: "magnetic"
